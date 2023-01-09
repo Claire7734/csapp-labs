@@ -125,7 +125,7 @@ extern int printf(const char *, ...);
  *   Rating: 2
  */
 long copyLSB(long x) {
-    return 2;
+    return (x & 0x1) ? ~(0x0L) : 0x0L;
 }
 /*
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -137,7 +137,7 @@ long copyLSB(long x) {
  *   Rating: 2
  */
 long allOddBits(long x) {
-    return 2;
+    return ((x & 0xAAAAAAAAAAAAAAAAL) ^ 0xAAAAAAAAAAAAAAAAL) ? 0L : 1L;
 }
 /*
  * isNotEqual - return 0 if x == y, and 1 otherwise
@@ -147,7 +147,7 @@ long allOddBits(long x) {
  *   Rating: 2
  */
 long isNotEqual(long x, long y) {
-    return 2L;
+    return (x ^ y) ? 1 : 0;
 }
 /*
  * dividePower2 - Compute x/(2^n), for 0 <= n <= 62
@@ -158,7 +158,13 @@ long isNotEqual(long x, long y) {
  *   Rating: 2
  */
 long dividePower2(long x, long n) {
-    return 2L;
+    if (n == 0)
+        return x;
+    if (x >= 0)
+        return x >> n;
+    if (n != 1)
+        x = x >> (n - 1);
+    return (x % 2) ? ((x >> 1) + 1) : (x >> 1); // TODO
 }
 // 3
 /*
@@ -170,7 +176,13 @@ long dividePower2(long x, long n) {
  *   Rating: 3
  */
 long remainderPower2(long x, long n) {
-    return 2L;
+    if (n == 0)
+        return 0;
+    if (x >= 0)
+        return x >> n;
+    if (n != 1)
+        x = x >> (n - 1);
+    return (x % 2) ? ((x >> 1) + 1) : (x >> 1); // TODO
 }
 /*
  * rotateLeft - Rotate x to the left by n
@@ -182,7 +194,10 @@ long remainderPower2(long x, long n) {
  *   Rating: 3
  */
 long rotateLeft(long x, long n) {
-    return 2;
+    if (n == 0)
+        return x;
+    else
+        return (x << n) + ((unsigned long)x >> (64 - n));
 }
 /*
  * bitMask - Generate a mask consisting of all 1's
@@ -195,7 +210,17 @@ long rotateLeft(long x, long n) {
  *   Rating: 3
  */
 long bitMask(long highbit, long lowbit) {
-    return 2L;
+    if (lowbit > highbit)
+        return 0;
+    long maskl, maskr, left, right;
+    maskl = 0x7FFFFFFFFFFFFFFFL;
+    maskr = 0xFFFFFFFFFFFFFFFFL;
+    if (63 == highbit)
+        left = maskr;
+    else
+        left = maskl >> (62 - highbit);
+    right = maskr << lowbit;
+    return left & right;
 }
 /*
  * isPower2 - returns 1 if x is a power of 2, and 0 otherwise
@@ -242,5 +267,10 @@ long trueThreeFourths(long x) {
  *   Rating: 4
  */
 long bitCount(long x) {
-    return 2;
+    int cnt = 0;
+    for (int i = 0; i < 64; i++) {
+        if (x & (0x1L << i))
+            cnt++;
+    }
+    return cnt;
 }
