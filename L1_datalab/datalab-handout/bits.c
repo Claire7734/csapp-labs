@@ -158,13 +158,12 @@ long isNotEqual(long x, long y) {
  *   Rating: 2
  */
 long dividePower2(long x, long n) {
-    if (n == 0)
-        return x;
-    if (x >= 0)
-        return x >> n;
-    if (n != 1)
-        x = x >> (n - 1);
-    return (x % 2) ? ((x >> 1) + 1) : (x >> 1); // TODO
+    // https://github.com/ladrift/csapp-labs/blob/master/datalab-handout/bits.c#L207
+    long sign = x >> 63;
+    // HIGHLIGHT: complement = <n of ones at least significant bits> a.k.a
+    // 0x000f if n == 4
+    long comp = (~0x0L) + (0x1L << n);
+    return ((sign & comp) + x) >> n;
 }
 // 3
 /*
